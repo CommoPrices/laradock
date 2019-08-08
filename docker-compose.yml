@@ -207,7 +207,12 @@ services:
       depends_on:
         - workspace
       networks:
-        - backend
+        frontend:
+          aliases:
+            - commo-webapp.localhost
+        backend:
+          aliases:
+            - commo-api.localhost
       links:
         - docker-in-docker
 
