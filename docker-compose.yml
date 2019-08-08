@@ -209,10 +209,10 @@ services:
       networks:
         frontend:
           aliases:
-            - commo-webapp.localhost
+            - webapp.localhost
         backend:
           aliases:
-            - commo-api.localhost
+            - api.localhost
       links:
         - docker-in-docker
 
