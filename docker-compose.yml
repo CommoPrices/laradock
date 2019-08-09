@@ -207,12 +207,8 @@ services:
       depends_on:
         - workspace
       networks:
-        frontend:
-          aliases:
-            - webapp.localhost
-        backend:
-          aliases:
-            - api.localhost
+        - backend
+        - frontend
       links:
         - docker-in-docker
 
@@ -267,6 +263,7 @@ services:
         - "dockerhost:${DOCKER_HOST_IP}"
       networks:
         - backend
+        - frontend
 
 ### NGINX Server #########################################
     nginx:
@@ -290,8 +287,12 @@ services:
       depends_on:
         - php-fpm
       networks:
-        - frontend
-        - backend
+        frontend:
+          aliases:
+            - webapp.localhost
+        backend:
+          aliases:
+            - api.localhost
 
 ### Blackfire ########################################
     blackfire:
