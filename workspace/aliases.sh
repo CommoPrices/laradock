@@ -149,3 +149,12 @@ function fs() {
 		du $arg .[^.]* ./*;
 	fi;
 }
+
+
+# commoprices
+alias pa="php artisan"
+alias tinker="pa tinker"
+alias webapp="code && cd webapp"
+alias api="code && cd api"
+alias webapp-tinker="webapp && tinker"
+alias api-tinker="api && tinker"
