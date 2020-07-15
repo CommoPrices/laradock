@@ -15,11 +15,16 @@
 #     docker-compose exec mysql bash
 #     mysql -u root -p < /docker-entrypoint-initdb.d/createdb.sql
 #
+CREATE DATABASE IF NOT EXISTS `www` COLLATE 'utf8_unicode_ci';
 
-CREATE DATABASE IF NOT EXISTS `webapp` COLLATE 'utf8_unicode_ci' ;
-GRANT ALL ON `webapp`.* TO 'default'@'%' ;
+GRANT ALL ON `www`.* TO 'default' @'%';
 
-CREATE DATABASE IF NOT EXISTS `api` COLLATE 'utf8_unicode_ci' ;
-GRANT ALL ON `api`.* TO 'default'@'%' ;
+CREATE DATABASE IF NOT EXISTS `markant` COLLATE 'utf8_unicode_ci';
 
-FLUSH PRIVILEGES ;
+GRANT ALL ON `markant`.* TO 'default' @'%';
+
+CREATE DATABASE IF NOT EXISTS `api` COLLATE 'utf8_unicode_ci';
+
+GRANT ALL ON `api`.* TO 'default' @'%';
+
+FLUSH PRIVILEGES;
