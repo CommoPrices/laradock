@@ -27,4 +27,8 @@ CREATE DATABASE IF NOT EXISTS `api` COLLATE 'utf8_unicode_ci';
 
 GRANT ALL ON `api`.* TO 'default' @'%';
 
+CREATE DATABASE IF NOT EXISTS `seed` COLLATE 'utf8_unicode_ci';
+
+GRANT ALL ON `seed`.* TO 'default' @'%';
+
 FLUSH PRIVILEGES;
