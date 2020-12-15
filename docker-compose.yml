@@ -376,8 +376,14 @@ services:
     depends_on:
       - php-fpm
     networks:
-      - frontend
-      - backend
+      frontend:
+        aliases:
+          - api.localhost
+          - webapp.localhost
+      backend:
+        aliases:
+          - api.localhost
+          - webapp.localhost
 
   ### Blackfire ########################################
   blackfire:
@@ -608,6 +614,7 @@ services:
       - "${REDIS_PORT}:6379"
     networks:
       - backend
+      - frontend
 
   ### Redis Cluster ##########################################
   redis-cluster:
