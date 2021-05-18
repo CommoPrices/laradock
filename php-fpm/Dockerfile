@@ -84,6 +84,17 @@ RUN if [ ${INSTALL_BZ2} = true ]; then \
 ;fi
 
 ###########################################################################
+# Enchant:
+###########################################################################
+
+ARG INSTALL_ENCHANT=false
+RUN if [ ${INSTALL_ENCHANT} = true ]; then \
+  apt-get install -yqq libenchant-dev; \
+  docker-php-ext-install enchant; \
+  php -m | grep -oiE '^enchant$'; \
+fi
+
+###########################################################################
 # GMP (GNU Multiple Precision):
 ###########################################################################
 
@@ -111,6 +122,8 @@ RUN if [ ${INSTALL_GNUPG} = true ]; then \
       else \
         pecl install gnupg; \
       fi; \
+      docker-php-ext-enable gnupg; \
+      php -m | grep -q 'gnupg'; \
     fi
 
 ###########################################################################
@@ -397,27 +410,18 @@ RUN set -eux; \
 
 ARG INSTALL_AMQP=false
 
-RUN if [ ${INSTALL_AMQP} = true ]; then \
-    # download and install manually, to make sure it's compatible with ampq installed by pecl later
-    # install cmake first
-    apt-get -yqq install cmake && \
-    curl -L -o /tmp/rabbitmq-c.tar.gz https://github.com/alanxz/rabbitmq-c/archive/master.tar.gz && \
-    mkdir -p rabbitmq-c && \
-    tar -C rabbitmq-c -zxvf /tmp/rabbitmq-c.tar.gz --strip 1 && \
-    cd rabbitmq-c/ && \
-    mkdir _build && cd _build/ && \
-    cmake .. && \
-    cmake --build . --target install && \
-    # Install the amqp extension
-    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ]; then \
-      printf "\n" | pecl install amqp-1.11.0beta; \
-    else \
-      printf "\n" | pecl install amqp; \
-    fi && \
-    docker-php-ext-enable amqp && \
-    # Install the sockets extension
-    docker-php-ext-install sockets \
-;fi
+RUN set -eux; \
+    if [ ${INSTALL_AMQP} = true ]; then \
+      # # Install the amqp extension
+      apt-get -yqq install librabbitmq-dev; \
+      if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ]; then \
+        pecl install amqp-1.11.0beta; \
+      else \
+        pecl install amqp; \
+      fi; \
+      docker-php-ext-enable amqp; \
+      php -m | grep -oiE '^amqp$'; \
+    fi
 
 ###########################################################################
 # CASSANDRA:
@@ -772,7 +776,8 @@ RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
     else \
       pecl install imagick; \
     fi && \
-    docker-php-ext-enable imagick \
+    docker-php-ext-enable imagick; \
+    php -m | grep -q 'imagick' \
 ;fi
 
 ###########################################################################
@@ -1068,6 +1073,50 @@ RUN if [ ${INSTALL_XMLRPC} = true ]; then \
     docker-php-ext-install xmlrpc; \
   fi \
 ;fi
+
+###########################################################################
+# PHP DECIMAL:
+###########################################################################
+
+USER root
+
+ARG INSTALL_PHPDECIMAL=false
+
+RUN if [ ${INSTALL_PHPDECIMAL} = true ]; then \
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+      echo 'decimal not support PHP 5.6'; \
+    else \
+      apt-get install -yqq libmpdec-dev \
+      && pecl install decimal \
+      && docker-php-ext-enable decimal \
+      && php -m | grep -q 'decimal' \
+    ;fi \
+;fi
+
+###########################################################################
+# zookeeper
+###########################################################################
+ARG INSTALL_ZOOKEEPER=false
+
+RUN set -eux; \
+    if [ ${INSTALL_ZOOKEEPER} = true ]; then \
+    apt install -yqq libzookeeper-mt-dev; \
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ]; then \
+      curl -L -o /tmp/php-zookeeper.tar.gz https://github.com/php-zookeeper/php-zookeeper/archive/master.tar.gz; \
+      mkdir -p /tmp/php-zookeeper; \
+      tar -C /tmp/php-zookeeper -zxvf /tmp/php-zookeeper.tar.gz --strip 1; \
+      cd /tmp/php-zookeeper; \
+      phpize && ./configure && make && make install;\
+    else \
+      if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+        pecl install zookeeper-0.5.0; \
+      else \
+        pecl install zookeeper-0.7.2; \
+      fi; \
+    fi; \
+    docker-php-ext-enable zookeeper; \
+    php -m | grep -q 'zookeeper'; \
+    fi
 
 ###########################################################################
 # New Relic for PHP:
